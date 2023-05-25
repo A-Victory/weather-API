@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"fmt"
+	"log"
 )
 
 type apiConfigData struct {
@@ -64,7 +66,12 @@ func query(city string) (WeatherData, error) {
 	return d, nil
 }
 
+func hello(w http.ResponseWriter, *http.Request) {
+	fmt.Fprintf(w, "Hello from Go\n")
+}
+
 func main() {
+	http.HandleFunc("/", hello)
 	http.HandleFunc("/weather/", func(w http.ResponseWriter, r *http.Request) {
 		city := strings.SplitN(r.URL.Path, "/", 3)[2]
 		data, err := query(city)
@@ -76,5 +83,5 @@ func main() {
 		json.NewEncoder(w).Encode(data)
 	})
 
-	http.ListenAndServe(":8080", nil)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
